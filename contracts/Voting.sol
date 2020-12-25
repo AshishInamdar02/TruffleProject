@@ -3,7 +3,7 @@ pragma solidity >=0.4.22 <0.9.0;
 
 contract Voting{
     
-    // Bool variable to keep track of the voting process is active or not.
+    
     bool public isVoting;
 
     // Vote Struct. It defines a custom type to be used to store values for every vote received.
@@ -21,12 +21,6 @@ contract Voting{
     event RemoveVote(address voter);
     event StartVoting(address startedBy);
     event StopVoting(address stoppedBy);
-
-    // Main constructor of the contract. It sets the owner of the contract and the voting status flag to false.
-    constructor(){
-
-        isVoting = false;
-    }
 
     function startVoting() external returns(bool){
 
