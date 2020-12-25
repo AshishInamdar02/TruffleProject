@@ -3,18 +3,28 @@ pragma solidity >=0.4.22 <0.9.0;
 
 contract AccessControlled{
 
-    // Bool variable to keep track of the voting process is active or not.
+    // State variables for the owner and the voting status flag.
     bool public isVoting;
+    address owner;
 
     // Main constructor of the contract. It sets the owner of the contract and the voting status flag to false.
-    constructor(){
+    constructor(address _owner, bool _isVoting){
 
-        isVoting = false;
+        isVoting = _isVoting;
+        owner = _owner;
+        
     }
     // Define the modifiers used as part of fuction.
-    modifier isVotingOpen{
+    modifier voteClosed{
 
-        require(isVoting == true, "Voting process is not open.");
+        require(!isVoting, "Voting is currently open. Wait for it to be closed.");
         _;
     }
+
+    modifier onlyOwner{
+
+        require(msg.sender == owner, "Only the contract owner can perform this operation");
+        _;
+    }
+
 }

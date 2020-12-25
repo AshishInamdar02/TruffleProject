@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-contract Voting{
+import './AccessControlled.sol';
+
+contract Voting is AccessControlled{
     
-    
-    bool public isVoting;
 
     // Vote Struct. It defines a custom type to be used to store values for every vote received.
     struct Vote{
@@ -22,21 +22,30 @@ contract Voting{
     event StartVoting(address startedBy);
     event StopVoting(address stoppedBy);
 
-    function startVoting() external returns(bool){
+    constructor() AccessControlled(msg.sender, false){
 
-        isVoting = false;
-        emit StopVoting(msg.sender);
+    }
+
+    function startVoting() external onlyOwner returns(bool){
+
+        require(!isVoting, "Voting is already OPEN.");
+        isVoting = true;
+        emit StopVoting(owner);
         return true;
     }
 
-    function stopVoting() external returns(bool){
+    function stopVoting() external onlyOwner returns(bool){
 
+        require(isVoting, "Voting is already CLOSED.");
         isVoting = false;
-        emit StopVoting(msg.sender);
+        emit StopVoting(owner);
         return true;
     }
 
-    function removeVote() external returns(bool){
+    function removeVote() external onlyOwner returns(bool){
+
+        require(isVoting, "Voting is currently not open. Please try again later.");
+		require(votes[msg.sender].timestamp != 0, "This user has NOT voted yet!");
 
         delete votes[msg.sender];
         emit RemoveVote(msg.sender);
@@ -45,7 +54,23 @@ contract Voting{
 
     function getVote(address voterAddress) external view returns(address candidateAddress){
 
+        require(msg.sender == owner, "Only the contract owner can perform this operation");
         return votes[voterAddress].receiver;
+    }
+
+    function addVote(address receiver) external onlyOwner returns(bool) {
+
+        assert(receiver != address(0));
+        require(isVoting, "Voting is currently not open. Please try again later.");
+		require(votes[msg.sender].timestamp > 0, "This user has already voted!");
+
+		// Set values for the Vote struct
+		votes[msg.sender].receiver = receiver;
+		votes[msg.sender].timestamp = block.timestamp;
+
+		emit AddVote(msg.sender, votes[msg.sender].receiver, votes[msg.sender].timestamp);
+		return true;
+        
     }
 
 }
