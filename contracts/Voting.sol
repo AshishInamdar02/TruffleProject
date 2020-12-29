@@ -30,7 +30,7 @@ contract Voting is AccessControlled{
 
         require(!isVoting, "Voting is already OPEN.");
         isVoting = true;
-        emit StopVoting(owner);
+        emit StartVoting(owner);
         return true;
     }
 
